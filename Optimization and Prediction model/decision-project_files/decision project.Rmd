@@ -1,0 +1,76 @@
+---
+title: "decision project"
+author: "Richard"
+date: "2020/4/23"
+output: html_document
+---
+
+# Set work place
+```{r setup, include=FALSE}
+require("knitr")
+datadir<-("C:/Users/hebin/OneDrive/merge/")
+sourcedir<-("C:/Users/hebin/OneDrive/Rcode/")
+opts_knit$set(root.dir=sourcedir)
+opts_chunk$set(warning=FALSE)
+```
+
+# Read the data and plot prediction/realtime price data
+```{r}
+setwd(datadir)
+df1<-read.csv("model.csv")
+attach(df1)
+str(df1)
+df2<-df1[complete.cases(df1),]
+summary(df2)
+dim(df2)
+hist(df2$preprice, breaks = 100, main = "Histogram of historical prediction price")
+hist(df2$realprice, breaks = 100, main = "Histogram of historical realtime price")
+```
+
+# Build linear model
+```{r}
+lm1<-lm(realprice~preprice,data=df2)
+summary(lm1)
+summary(lm1$res)
+model_pre1 = predict(lm1, data.frame(preprice))
+plot(model_pre1,df2$realprice, xlab = "Forecast Price", ylab = "Realtime Price")
+abline(model.lm)
+
+```
+
+# plot and check whether error term follows our assumption
+```{r}
+plot(lm1,which=1)
+plot(lm1,which=2)
+```
+# error distribution
+```{r}
+n<- 21600
+theta_hat <- mean(lm1$res)         # Sample mean
+epsilon_hat <- lm1$res-theta_hat   # Model residuals
+ssr <- sum(epsilon_hat^2)    # Sum of squared residuals
+sigma_hat <- ssr/(n-1)       # Estimated standard error
+print(theta_hat)
+print(sigma_hat)
+forecast_errors <- rnorm(21600, theta_hat, sigma_hat)
+hist(forecast_errors, breaks = 100)
+```
+
+```{r}
+simulation <-df2$realprice + forecast_errors
+lm2 <- lm(df2$realprice~simulation)
+summary(linear_model)
+qqnorm(x)
+qqline(x)
+model_pre2 = predict(lm2, data.frame(df2$preprice))
+plot(model_pre2,df2$realprice, xlab = "Forecast Price", ylab = "Realtime Price")
+abline(lm2)
+```
+
+```{r}
+summary(linear_model)
+plot(linear_model,which=1)
+plot(linear_model,which=2)
+```
+
+
